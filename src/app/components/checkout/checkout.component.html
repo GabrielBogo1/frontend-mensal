@@ -1,0 +1,102 @@
+<div class="container">
+    <div class="row">
+      <!-- Verifica se existe a lista e itera sobre ela -->
+      <div class="col-xl-8" *ngIf="items && items.length">
+        <div class="card border shadow-none mb-3" *ngFor="let item of items">
+          <div class="card-body">
+            <div class="d-flex align-items-start border-bottom pb-3">
+              <div class="me-4">
+                <img
+                  src="https://www.bootdey.com/image/380x380/008B8B/000000"
+                  alt=""
+                  class="avatar-lg rounded"
+                />
+              </div>
+              <div class="flex-grow-1 align-self-center overflow-hidden">
+                <div>
+                  <h5 class="text-truncate font-size-18">
+                    <a href="#" class="text-dark">
+                      {{ item.productName }}
+                    </a>
+                  </h5>
+                  <p class="text-muted mb-0">
+                    <i class="bx bxs-star text-warning"></i>
+                    <i class="bx bxs-star text-warning"></i>
+                    <i class="bx bxs-star text-warning"></i>
+                    <i class="bx bxs-star text-warning"></i>
+                    <i class="bx bxs-star-half text-warning"></i>
+                  </p>
+                  <p class="mb-0 mt-1">
+                    Observação:
+                    <span class="fw-medium">{{ item.productObservation }}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="flex-shrink-0 ms-2">
+                <ul class="list-inline mb-0 font-size-16">
+                  <li class="list-inline-item">
+                    <a href="#" class="text-muted px-1"
+                      ><i class="mdi mdi-trash-can-outline"></i
+                    ></a>
+                  </li>
+                  <li class="list-inline-item">
+                    <a href="#" class="text-muted px-1"
+                      ><i class="mdi mdi-heart-outline"></i
+                    ></a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+  
+            <!-- Valor e total dinâmicos -->
+            <div class="row">
+              <div class="col-md-4 mt-3">
+                <p class="text-muted mb-2">Valor</p>
+                <h5 class="mb-0 mt-2">
+                  R$ {{ item.productValue }}
+                </h5>
+              </div>
+              <!-- Exemplo de quantidade 
+              <div class="col-md-3 mt-3">
+                <p class="text-muted mb-2">Total</p>
+                <h5>
+                  R$ {{ item.quantity ? item.quantity * item.productValue : item.productValue }}
+                </h5>
+              </div>
+              -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Se a lista estiver vazia, mostra uma mensagem -->
+      <div class="col-xl-8" *ngIf="!items || !items.length">
+        <p>Nenhum item no checkout.</p>
+      </div>
+  
+      <!-- Resumo simples (somente total) -->
+      <div class="col-xl-4">
+        <div class="mt-5 mt-lg-0">
+          <div class="card border shadow-none">
+            <div class="card-header bg-transparent border-bottom py-3 px-4">
+              <h5 class="font-size-16 mb-0">Resumo do Pedido</h5>
+            </div>
+            <div class="card-body p-4 pt-2">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <tbody>
+                    <tr>
+                      <td class="fw-bold">Valor Total:</td>
+                      <td class="text-end">
+                        R$ {{ getTotal() }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <ngx-paypal [config]="payPalConfig"></ngx-paypal>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end col-xl-4 -->
+    </div><!-- end row -->
+  </div><!-- end container -->
