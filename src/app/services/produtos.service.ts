@@ -11,7 +11,7 @@ export class ProdutosService {
 
   //private readonly apiUrl = `${environment.apiUrl}/product`;
 
-  API = environment.SERVIDOR + "/produto";
+  API = environment.SERVIDOR + "/api/product";
 
   constructor(private http: HttpClient) {}
 

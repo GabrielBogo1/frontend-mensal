@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ProdutosService } from '../../services/produtos.service';
 import { Item } from '../../models/item/item';
-import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-listadecompras',
@@ -17,7 +16,6 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class ListadecomprasComponent implements OnInit {
   items: Item[] = [];
-  authService = inject(AuthService);
   constructor(private router: Router, private meuService: ProdutosService) {}
 
   ngOnInit(): void {
