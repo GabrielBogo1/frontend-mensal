@@ -88,7 +88,7 @@
 //   it('deve deletar um item pelo ID', () => {
 //     service.deletarItem('1').subscribe(response => {
 //       expect(response).toBeNull(); // Alterado de 'toBeUndefined()' para 'toBeNull()'
-//     });
+//     });dqwwdq
   
 //     const req = httpMock.expectOne(`${API}/1`);
 //     expect(req.request.method).toBe('DELETE');
