@@ -87,7 +87,7 @@ describe('ProdutosService', () => {
 
   it('deve deletar um item pelo ID', () => {
     service.deletarItem('1').subscribe(response => {
-      expect(response).toBeNull(); // Alterado de 'toBeUndefined()' para 'toBeNull()'
+      expect(response).toBeNull(); // Alterado de 'toddwqdwqdqwBeUndefined()' para 'toBeNull()'
     });
   
     const req = httpMock.expectOne(`${API}/1`);
