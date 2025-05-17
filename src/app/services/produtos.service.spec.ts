@@ -27,7 +27,7 @@ describe('ProdutosService', () => {
     httpMock.verify();
   });
 
-  it('deve ser criado', () => {
+  it('deve ser criado', () => { // dqwdwq
     expect(service).toBeTruthy();
   });
 
