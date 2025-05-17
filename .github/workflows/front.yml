@@ -1,71 +1,158 @@
-name: Angular CI
-
 on:
   push:
     branches:
-      - front-end
-  pull_request:
-    branches:
-      - front-end
+      - dev
+      - main
+      - 'release/*'
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: |
-          npm install
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+      - name: Instalar dependências
+        run: npm install
 
-      - name: Run Angular tests
+      - name: Rodar testes
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
+
+  deploy-stage:
+    needs: tests
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Build Angular
+        run: npm run build -- --configuration=staging
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Autenticar com GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Build Docker image
         run: |
-          npm run test -- --watch=false --browsers=ChromeHeadless
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }} .
+
+      - name: Push para Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }}
+
+      - name: Configurar kubectl e fazer deploy
+        run: |
+          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
+          kubectl apply -f k8s/frontend-stage/
+          kubectl set image deployment/frontend frontend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }} -n stage
+
+  deploy-prod:
+    needs: tests
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Build Angular
+        run: npm run build -- --configuration=production
+
+      - name: Autenticar com GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }} .
+
+      - name: Push para Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }}
+
+      - name: Configurar kubectl e fazer deploy
+        run: |
+          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
+          kubectl apply -f k8s/frontend/
+          kubectl set image deployment/frontend frontend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }} -n production
+
+  release:
+    if: startsWith(github.ref, 'refs/heads/release/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Build Angular
+        run: npm run build -- --configuration=production
+
+      - name: Autenticar com GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:release-${{ github.sha }} .
+
+      - name: Push para Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:release-${{ github.sha }}
+
+      - name: Criar payload do Slack
+        run: |
+          echo "{\"text\":\"Nova release do frontend publicada!\"}" > slack-payload.json
+
+      - name: Notificação Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload-file-path: ./slack-payload.json
         env:
-          CI: true
-
-      - name: Build Angular project
-        run: |
-            npm run build -- --configuration=production
-
-      - name: Verificar arquivos gerados
-        run: |
-            ls -la dist
-            ls -la dist/front-projetoum
-
-      - name: Configurar chave SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GCP_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.GCP_VM_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Criar diretório na VM (se necessário)
-        run: |
-          ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }} "mkdir -p /home/${{ secrets.GCP_VM_USER }}/frontend"
-
-      - name: Enviar arquivos para a VM
-        run: |
-          scp -r dist/front-projetoum ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }}:/home/${{ secrets.GCP_VM_USER }}/frontend
-          scp Dockerfile nginx.conf package.json package-lock.json ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }}:/home/${{ secrets.GCP_VM_USER }}/frontend/
-
-      - name: Build e restart do container na VM
-        run: |
-          ssh ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }} << 'EOF'
-            cd ~/frontend
-            docker stop frontangularmensal7 || true
-            docker rm frontangularmensal7 || true
-            docker build --no-cache -t frontend-mensal .
-            docker run -d --name frontangularmensal7 -p 80:80 -p 443:443 -v /etc/letsencrypt/live/api-mensal.shop/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro -v /etc/letsencrypt/live/api-mensal.shop/privkey.pem:/etc/nginx/ssl/privkey.pem:ro frontend-mensal 
-          EOF
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
