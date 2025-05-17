@@ -28,7 +28,7 @@ describe('ProdutosService', () => {
   });
 
   it('deve ser criado', () => {
-    expect(service).toBeTruthy();
+    expect(service).toBeTruthy(); //dqwdwqqdw
   });
 
   it('deve retornar uma lista de itens', () => {
