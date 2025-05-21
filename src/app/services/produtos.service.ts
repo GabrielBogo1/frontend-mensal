@@ -21,7 +21,7 @@ export class ProdutosService {
 
 
   getItens(): Observable<Item[]> {
-    return this.http.get<Item[]>(this.API);
+    return this.http.get<Item[]>(`${this.API}/teste`);
   }
 
   getItemById(id: string): Observable<Item> {
