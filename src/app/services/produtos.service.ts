@@ -15,6 +15,11 @@ export class ProdutosService {
 
   constructor(private http: HttpClient) {}
 
+  getMensagem(): Observable<string> {
+    return this.http.get(this.API, { responseType: 'text' });
+  }
+
+
   getItens(): Observable<Item[]> {
     return this.http.get<Item[]>(this.API);
   }

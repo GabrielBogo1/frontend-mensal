@@ -61,4 +61,15 @@ export class ListadecomprasComponent implements OnInit {
       }
     );
   }
+
+  testar(): void {
+    this.meuService.getMensagem().subscribe({
+      next: (resposta) => {
+        console.log('Resposta do backend:', resposta);
+      },
+      error: (erro) => {
+        console.error('Erro ao chamar o backend:', erro);
+      }
+    });
+  }
 }
