@@ -28,7 +28,7 @@
 //   });
 
 //   it('deve ser criado', () => {
-//     expect(service).toBeTruthy();
+//     expect(service).toBeTruthy(); //dqwdwqqdw
 //   });
 
 //   it('deve retornar uma lista de itens', () => {
@@ -88,7 +88,11 @@
 //   it('deve deletar um item pelo ID', () => {
 //     service.deletarItem('1').subscribe(response => {
 //       expect(response).toBeNull(); // Alterado de 'toBeUndefined()' para 'toBeNull()'
+<<<<<<< HEAD
 //     });dqwwdq
+=======
+//     });
+>>>>>>> release/v1.0
   
 //     const req = httpMock.expectOne(`${API}/1`);
 //     expect(req.request.method).toBe('DELETE');
@@ -96,6 +100,9 @@
 //   });
 
 // });
+<<<<<<< HEAD
 
 // teste
+=======
+>>>>>>> release/v1.0
 
