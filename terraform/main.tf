@@ -56,12 +56,25 @@ resource "google_compute_firewall" "allow_app" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["5000"]
   }
 
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["app-access"]
 }
+
+resource "google_compute_firewall" "allow_http" {
+  name    = "allow-http"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
 
 output "vm_ip_address" {
   description = "Endereço IP externo da VM"
