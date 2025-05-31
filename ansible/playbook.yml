@@ -45,13 +45,19 @@
         name: docker
         state: started
         enabled: yes
+    
+    - name: Parar container antigo (se existir)
+      shell: docker compose down
+      args:
+        chdir: /home/gabriel/app
+      ignore_errors: true
 
     - name: Clonar repositório do projeto
       git:
         repo: 'https://github.com/GabrielBogo1/frontend-mensal'
         dest: /home/gabriel/app/
 
-    - name: Executar docker-compose up -d
-      shell: docker-compose up -d
+    - name: Rebuildar imagem e subir container atualizado
+      shell: docker compose up -d --build
       args:
-        chdir: /home/gabriel/app/
+        chdir: /home/gabriel/app
