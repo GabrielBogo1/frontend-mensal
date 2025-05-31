@@ -39,6 +39,12 @@ jobs:
           sudo apt update
           sudo apt install -y ansible sshpass
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCLOUD_SSH_PRIVATE_KEY }}" > ~/.ssh/google_compute_engine
+          chmod 600 ~/.ssh/google_compute_engine
+
       - name: Run Ansible Playbook
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
