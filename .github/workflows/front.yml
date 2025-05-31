@@ -1,158 +1,44 @@
+name: Deploy Infra + App
+
 on:
   push:
     branches:
-      - dev
       - main
-      - 'release/*'
 
 jobs:
-  tests:
+  deploy:
+    name: Terraform + Ansible Deploy
     runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
-          node-version: '18'
+          terraform_version: 1.5.0
 
-      - name: Instalar dependências
-        run: npm install
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
 
-      - name: Rodar testes
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
 
-  deploy-stage:
-    needs: tests
-    if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
-    container:
-      image: google/cloud-sdk:latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Instalar dependências
-        run: npm install
-
-      - name: Build Angular
-        run: npm run build -- --configuration=staging
-
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Autenticar com GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Build Docker image
+      - name: Setup Python & Ansible
         run: |
-          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }} .
+          sudo apt update
+          sudo apt install -y ansible sshpass
 
-      - name: Push para Artifact Registry
+      - name: Run Ansible Playbook
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }}
-
-      - name: Configurar kubectl e fazer deploy
-        run: |
-          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl apply -f k8s/frontend-stage/
-          kubectl set image deployment/frontend frontend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:dev-${{ github.sha }} -n stage
-
-  deploy-prod:
-    needs: tests
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    container:
-      image: google/cloud-sdk:latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Instalar dependências
-        run: npm install
-
-      - name: Build Angular
-        run: npm run build -- --configuration=production
-
-      - name: Autenticar com GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        run: |
-          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }} .
-
-      - name: Push para Artifact Registry
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }}
-
-      - name: Configurar kubectl e fazer deploy
-        run: |
-          gcloud container clusters get-credentials meu-cluster-cicd --zone=us-central1-a --project=cluster-mensal
-          kubectl apply -f k8s/frontend/
-          kubectl set image deployment/frontend frontend=us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:prod-${{ github.sha }} -n production
-
-  release:
-    if: startsWith(github.ref, 'refs/heads/release/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Instalar dependências
-        run: npm install
-
-      - name: Build Angular
-        run: npm run build -- --configuration=production
-
-      - name: Autenticar com GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        run: |
-          docker build -t us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:release-${{ github.sha }} .
-
-      - name: Push para Artifact Registry
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/cluster-mensal/meu-repo/frontend-angular:release-${{ github.sha }}
-
-      - name: Criar payload do Slack
-        run: |
-          echo "{\"text\":\"Nova release do frontend publicada!\"}" > slack-payload.json
-
-      - name: Notificação Slack
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload-file-path: ./slack-payload.json
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
