@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ProdutosService } from '../../services/produtos.service';
 import { Item } from '../../models/item/item';
-
+// dwqdqwdqwdqwdasdsa
 @Component({
   selector: 'app-listadecompras',
   standalone: true,
