@@ -33,11 +33,11 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init -upgrade
+        working-directory: ./terraform/stage
+        run: terraform init
 
       - name: Terraform Apply
-        working-directory: ./terraform
+        working-directory: ./terraform/stage
         run: terraform apply -auto-approve
 
   build-and-push:
