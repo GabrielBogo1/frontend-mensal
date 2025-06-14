@@ -99,16 +99,21 @@ jobs:
           helm repo update
 
 
-      - name: Install Monitoring Stack via Helm (if not exists)
+      # - name: Install Monitoring Stack via Helm (if not exists)
+      #   run: |
+      #     if ! helm status kube-prometheus-stack -n monitoring > /dev/null 2>&1; then
+      #     helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+      #     -n monitoring --create-namespace \
+      #     -f k8s/monitoring/monitoring-values.yaml
+      #     else
+      #       echo "Monitoring stack already installed. Skipping Helm upgrade."
+      #     fi
+      
+      - name: Install/Upgrade Monitoring Stack via Helm
         run: |
-          if ! helm status kube-prometheus-stack -n monitoring > /dev/null 2>&1; then
-          helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+          helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
           -n monitoring --create-namespace \
           -f k8s/monitoring/monitoring-values.yaml
-          else
-            echo "Monitoring stack already installed. Skipping Helm upgrade."
-          fi
-
   
       - name: Validate Deployment
         run: |
