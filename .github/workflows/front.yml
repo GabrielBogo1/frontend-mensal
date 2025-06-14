@@ -8,7 +8,7 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: my-cluster
   GKE_ZONE: us-central1-c
-  IMAGE_NAME: my-app
+  IMAGE_NAME: frontend
   DOCKER_REGISTRY: docker.io
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform/stage
-        run: terraform init
+        run: terraform init -upgrade
 
       - name: Terraform Apply
         working-directory: ./terraform/stage
