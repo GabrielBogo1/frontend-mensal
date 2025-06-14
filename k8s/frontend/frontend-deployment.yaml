@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: tiuzaodagoiaba/frontend-semanal:latest
-          imagePullPolicy: Always
+          image: us-central1-docker.pkg.dev/cluster-mensal-462916/gcr.io/frontend:latest
           ports:
             - containerPort: 80
 ---
