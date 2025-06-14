@@ -11,7 +11,8 @@ terraform {
 
 provider "google" {
   project = "cluster-mensal-462916"
-  region  = "us-central1"  # Ou pode ser uma zona exata, tipo us-central1-a, se preferir
+  region  = "us-central1"
+  credentials = file("account.json")
 }
 
 resource "google_container_cluster" "primary" {

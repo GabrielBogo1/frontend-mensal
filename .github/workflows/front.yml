@@ -31,6 +31,9 @@ jobs:
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+      
+      - name: Create credentials file
+        run: echo '${{ secrets.GCP_SA_KEY }}' > ./terraform/stage/account.json
 
       - name: Terraform Init
         working-directory: ./terraform/stage
