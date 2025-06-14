@@ -9,6 +9,8 @@ spec:
       app: frontend
   template:
     metadata:
+      annotations:
+        redeploy-timestamp: "REPLACE_ME"
       labels:
         app: frontend
     spec:

@@ -84,15 +84,25 @@ jobs:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_ZONE }}
 
+      - name: Inject timestamp to force redeploy
+        run: |
+          TIMESTAMP=$(date +%s)
+          sed -i "s/REPLACE_ME/$TIMESTAMP/" k8s/frontend/frontend-deployment.yaml
+
       - name: Apply Kubernetes Manifests
         run: |
           kubectl apply -f k8s/frontend
+      
+      - name: Add Prometheus Community Helm repo
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
 
       - name: Install/Upgrade Monitoring Stack via Helm
         run: |
           helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-            -n monitoring --create-namespace \
-            -f helm/kube-prometheus-stack/values.yaml
+            -n monitoring --create-namespace
 
       - name: Validate Deployment
         run: |
