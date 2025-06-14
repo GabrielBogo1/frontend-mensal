@@ -57,15 +57,15 @@ jobs:
 
       - name: Configure Docker to use Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
+          gcloud auth configure-docker us-docker.pkg.dev
 
       - name: Build Docker image
         run: |
-         docker build -t gcr.io/cluster-mensal-462916/frontend:latest .
+         docker build -t us-docker.pkg.dev/cluster-mensal-462916/gcr.io/frontend:latest .
 
       - name: Push Docker image
         run: |
-          docker push gcr.io/cluster-mensal-462916/frontend:latest
+          docker push us-docker.pkg.dev/cluster-mensal-462916/gcr.io/frontend:latest
 
   deploy:
     name: Deploy to GKE
