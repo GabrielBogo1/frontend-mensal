@@ -38,7 +38,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./terraform/stage
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var-file="stage.tfvars"
 
   build-and-push:
     name: Build and Push to Google Artifact Registry
