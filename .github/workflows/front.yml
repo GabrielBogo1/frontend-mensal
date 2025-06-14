@@ -86,7 +86,7 @@ jobs:
 
       - name: Apply Kubernetes Manifests
         run: |
-          kubectl apply -f k8s/
+          kubectl apply -f k8s/frontend
 
       - name: Install/Upgrade Monitoring Stack via Helm
         run: |

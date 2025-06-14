@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: us-central1-docker.pkg.dev/cluster-mensal-462916/gcr.io/frontend:latest
+          image: us-docker.pkg.dev/cluster-mensal-462916/gcr.io/frontend:latest
           ports:
             - containerPort: 80
 ---
