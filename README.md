@@ -73,6 +73,6 @@ Ambos os ambientes utilizam **kube-prometheus-stack**, provisionado via Helm, co
 
 - Temos dois namespaces criados, um para monitoramento (monitoring) e o default, onde está localizada nossa aplicação.
 - Backend e banco estão com o tipo ClusterIP, permitindo somente a comunicação interna dentro do cluster.
-- O Json do Grafana para criação da dashboard pode ser visualizado dentro da pasta [dashboard](dashboards/k8s_cluster_basic_metrics.json).
+- O Json do Grafana para criação da dashboard pode ser visualizado dentro da pasta [dashboard](dashboard/k8s_cluster_basic_metrics.json).
 
 
