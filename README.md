@@ -42,10 +42,10 @@ Cada ambiente conta com sua própria infraestrutura de **Kubernetes (GKE)** e si
 
 ```text
 1. Provisionamento da infraestrutura com Terraform
-2. Configuração do cluster Kubernetes (GKE/EKS)
+2. Configuração do cluster Kubernetes (GKE)
 3. Instalação do stack de monitoramento (Prometheus + Grafana)
 4. Build da imagem Docker da aplicação
-5. Push da imagem para o Artifact Registry / ECR
+5. Push da imagem para o Artifact Registry
 6. Deploy automático no cluster via `kubectl apply`
 7. Validação com `kubectl rollout status`
 ```
