@@ -71,5 +71,8 @@ Ambos os ambientes utilizam **kube-prometheus-stack**, provisionado via Helm, co
 
 ## 📝 Observações Adicionais
 
-- O acesso externo ao Grafana é exposto por meio de um Service do tipo LoadBalancer, automatizado pela pipeline, permitindo o monitoramento remoto de ambos os ambientes.
-- Os volumes persistentes garantem a retenção de configurações e dados do Grafana entre deploys.
+- Temos dois namespaces criados, um para monitoramento (monitoring) e o default, onde está localizada nossa aplicação.
+- Backend e banco estão com o tipo ClusterIP, permitindo somente a comunicação interna dentro do cluster.
+- O Json do Grafana para criação da dashboard pode ser visualizado dentro da pasta [dashboard](dashboards/k8s_cluster_basic_metrics.json).
+
+
