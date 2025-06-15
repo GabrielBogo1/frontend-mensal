@@ -7,7 +7,7 @@ Este projeto simula uma arquitetura **multinuvem** composta por dois ambientes i
 - **Ambiente de Stage**: Provisionado no Google Cloud Platform (GCP)
 - **Ambiente de Produção**: Provisionado também na GCP porém em outra conta
 
-Cada ambiente conta com sua própria infraestrutura de **Kubernetes (GKE/EKS)** e sistema de **monitoramento Prometheus + Grafana**, além de pipelines CI/CD independentes automatizando a entrega contínua da aplicação.
+Cada ambiente conta com sua própria infraestrutura de **Kubernetes (GKE)** e sistema de **monitoramento Prometheus + Grafana**, além de pipelines CI/CD independentes automatizando a entrega contínua da aplicação.
 
 ---
 
@@ -18,7 +18,7 @@ Cada ambiente conta com sua própria infraestrutura de **Kubernetes (GKE/EKS)** 
 - Conta válida no GitHub com acesso ao repositório
 - Acesso às contas de nuvem (GCP)
 - Configuração dos secrets no GitHub:
-  - `GCP_SA_KEY`, `GKE_PROJECT`, etc. para GCP
+  - `GCP_SA_KEY`, `GKE_PROJECT`
 
 ### 📂 Estrutura do Repositório
 
