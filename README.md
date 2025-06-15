@@ -1,59 +1,75 @@
-# FrontProjetoum
+# CI/CD Multicloud – Stage & Produção com Kubernetes + Monitoramento
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.6.
+## 📌 Visão Geral
 
-## Development server
+Este projeto simula uma arquitetura **multinuvem** composta por dois ambientes isolados:
 
-To start a local development server, run:
+- **Ambiente de Stage**: Provisionado no Google Cloud Platform (GCP)
+- **Ambiente de Produção**: Provisionado também na GCP porém em outra conta
 
-```bash
-ng serve
-```
+Cada ambiente conta com sua própria infraestrutura de **Kubernetes (GKE/EKS)** e sistema de **monitoramento Prometheus + Grafana**, além de pipelines CI/CD independentes automatizando a entrega contínua da aplicação.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 🚀 Instruções de Uso
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 🔧 Pré-requisitos
 
-```bash
-ng generate component component-name
-```
+- Conta válida no GitHub com acesso ao repositório
+- Acesso às contas de nuvem (GCP)
+- Configuração dos secrets no GitHub:
+  - `GCP_SA_KEY`, `GKE_PROJECT`, etc. para GCP
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### 📂 Estrutura do Repositório
 
 ```bash
-ng build
+.
+├── terraform/
+│   ├── prod/          # Infraestrutura do ambiente de produção
+│   └── stage/         # Infraestrutura do ambiente de homologação
+├── k8s/
+│   └── frontend/      # Manifests Kubernetes da aplicação
+├── .github/
+│   └── workflows/
+│       ├── front.yml  # Arquivo da pipeline     
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### ▶️ Executando o Pipeline
 
-## Running unit tests
+1. Faça um **push** para a branch `main` do repositório
+2. O GitHub Actions será acionado automaticamente
+3. As etapas automatizadas são:
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+```text
+1. Provisionamento da infraestrutura com Terraform
+2. Configuração do cluster Kubernetes (GKE/EKS)
+3. Instalação do stack de monitoramento (Prometheus + Grafana)
+4. Build da imagem Docker da aplicação
+5. Push da imagem para o Artifact Registry / ECR
+6. Deploy automático no cluster via `kubectl apply`
+7. Validação com `kubectl rollout status`
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## 🏗️ Descrição dos Ambientes
 
-```bash
-ng e2e
-```
+| Ambiente   | Nuvem | Cluster       | Monitoramento         | Acesso Externo |
+|------------|--------|----------------|------------------------|----------------|
+| **Stage**      | GCP    | GKE `gke-stage` | Prometheus + Grafana   | IP externo via LoadBalancer |
+| **Produção**   | GCP    | EKS `gke-prod`   | Prometheus + Grafana   | IP externo via LoadBalancer |
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 📊 Monitoramento
 
-## Additional Resources
+Ambos os ambientes utilizam **kube-prometheus-stack**, provisionado via Helm, contendo:
+- Métricas de CPU e memória
+- Status de pods
+- Dashboards personalizados no Grafana
+- Grafana exposto via `LoadBalancer` para acesso externo
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+
+## 📝 Observações Adicionais
+
+- O acesso externo ao Grafana é exposto por meio de um Service do tipo LoadBalancer, automatizado pela pipeline, permitindo o monitoramento remoto de ambos os ambientes.
+- Os volumes persistentes garantem a retenção de configurações e dados do Grafana entre deploys.
